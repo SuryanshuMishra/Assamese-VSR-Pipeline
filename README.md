@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Visual Speech Recognition (VSR) Pipeline for Assamese Language
 
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
@@ -122,3 +123,6 @@ python drive_batch_pipeline.py \
 - **Institution**: Indian Institute of Technology Guwahati (IIT Guwahati)
 - **Target Application**: Low-resource Visual Lip Reading & Speech Recognition
 
+=======
+# Assamese-VSR-Pipeline
+>>>>>>> 5149ab1fab3d85a4c3411a0cc237d628a7f4d376
