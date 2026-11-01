@@ -74,8 +74,8 @@ An end-to-end, multi-modal feature extraction pipeline for **Assamese Visual Spe
 ### 1. Installation
 
 ```bash
-git clone https://github.com/<your-username>/<your-repo>.git
-cd <your-repo>
+git clone https://github.com/SuryanshuMishra/Assamese-VSR-Pipeline.git
+cd Assamese-VSR-Pipeline
 
 pip install opencv-python dlib numpy pandas matplotlib scipy docx
 pip install google-api-python-client google-auth-httplib2 google-auth-oauthlib
@@ -121,3 +121,4 @@ python drive_batch_pipeline.py \
 - **Language**: Assamese
 - **Institution**: Indian Institute of Technology Guwahati (IIT Guwahati)
 - **Target Application**: Low-resource Visual Lip Reading & Speech Recognition
+
