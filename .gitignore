@@ -1,0 +1,35 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Google Drive API credentials & tokens (NEVER COMMIT)
+credentials.json
+token.json
+service_account*.json
+*.pem
+*.key
+
+# Large pretrained models (>100MB, auto-downloaded by detection.py)
+*.dat
+shape_predictor_68_face_landmarks.dat*
+
+# Video and test outputs
+*.mp4
+*.avi
+*.mov
+*.mkv
+vsr_output/
+test_single_output/
+mouth_crops/
+debug_frames/
+local_outputs/
+local_vsr/
+
+# Environment / IDE
+.env
+.venv
+env/
+venv/
+.idea/
+.vscode/
