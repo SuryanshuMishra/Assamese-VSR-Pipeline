@@ -21,6 +21,7 @@ shape_predictor_68_face_landmarks.dat*
 *.mkv
 vsr_output/
 test_single_output/
+s320_1351_output/
 mouth_crops/
 debug_frames/
 local_outputs/
