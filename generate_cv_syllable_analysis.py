@@ -1,5 +1,5 @@
 """
-Consonant-Vowel (C-V) and Syllabic Linguistic Analysis for Assamese VSR
+Consonant-Vowel (C-V) and Syllabic Linguistic Analysis for Assamese LMR
 ========================================================================
 Decomposes the Assamese sentence "moi doi khalu" (মই দৈ খালোঁ) into:
 1. Syllables: [moi] (মই), [doi] (দৈ), [kha] (খা), [lu] (লোঁ)

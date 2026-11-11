@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 
 
 class LinguisticSegmenter:
-    """Automated linguistic and phonological feature segmenter for VSR."""
+    """Automated linguistic and phonological feature segmenter for LMR."""
 
     def __init__(
         self,

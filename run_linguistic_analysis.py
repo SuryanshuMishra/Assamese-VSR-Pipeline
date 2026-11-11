@@ -26,7 +26,7 @@ if sys.stdout.encoding != 'utf-8':
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Automated Linguistic C-V & Boundary Analysis for Assamese VSR")
+    parser = argparse.ArgumentParser(description="Automated Linguistic C-V & Boundary Analysis for Assamese LMR")
     parser.add_argument("--input", type=str, help="Path to a single processed sentence output folder")
     parser.add_argument("--lab", type=str, default=None, help="Path to ground truth .lab transcript file (optional)")
     parser.add_argument("--batch", type=str, help="Directory containing multiple processed sentence folders")

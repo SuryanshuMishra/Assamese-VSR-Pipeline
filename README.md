@@ -3,7 +3,7 @@
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![Institution](https://img.shields.io/badge/Institution-IIT%20Guwahati-orange.svg)](https://www.iitg.ac.in/)
 
-An end-to-end, multi-modal feature extraction and linguistic boundary analysis pipeline for **Assamese Lip Motion Recognition (LMR)** and **Audio-Visual Speech Recognition (AVSR)**. Designed to extract high-fidelity geometric, kinematic, and appearance-based lip features from video recordings for speech and viseme recognition.
+An end-to-end, multi-modal feature extraction and linguistic boundary analysis pipeline for **Assamese Lip Motion Recognition (LMR)**. Designed to extract high-fidelity geometric, kinematic, and appearance-based lip features from video recordings for speech and viseme recognition.
 
 ---
 
@@ -61,11 +61,10 @@ An end-to-end, multi-modal feature extraction and linguistic boundary analysis p
 │   ├── visualization.py                # 6 diagnostic plots + 4-panel preview video
 │   └── linguistics.py                  # Automated C-V and syllable boundary model
 ├── lmr_pipeline.py                     # Single-video processing orchestrator (LMR)
-├── vsr_pipeline.py                     # Compatibility alias for lmr_pipeline.py
 ├── run_linguistic_analysis.py          # CLI runner for C-V and syllable boundary model
 ├── generate_linguistic_analysis.py     # Phonetic ground-truth (.lab) boundary alignment
 ├── deduplicate_frames.py               # Frame deduplication utility
-├── VSR_Pipeline_Report.docx            # Full technical development report
+├── LMR_Pipeline_Report.docx            # Full technical development report
 └── README.md
 ```
 

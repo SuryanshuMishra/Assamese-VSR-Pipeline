@@ -20,12 +20,14 @@ shape_predictor_68_face_landmarks.dat*
 *.mov
 *.mkv
 vsr_output/
+lmr_output/
 test_single_output/
 s320_1351_output/
 mouth_crops/
 debug_frames/
 local_outputs/
 local_vsr/
+local_lmr/
 
 # Environment / IDE
 .env

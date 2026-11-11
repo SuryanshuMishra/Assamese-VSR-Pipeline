@@ -115,17 +115,17 @@ if __name__ == "__main__":
     parser.add_argument("--use-crops", action="store_true",
                         help="Compare mouth crops instead of full frames (more sensitive to lip changes)")
     parser.add_argument("--input", "-i", type=str, default=None,
-                        help="Input directory (default: auto-detect from vsr_output)")
+                        help="Input directory (default: auto-detect from lmr_output)")
     parser.add_argument("--output", "-o", type=str, default=None,
                         help="Output directory for unique frames")
 
     args = parser.parse_args()
 
     if args.use_crops:
-        input_dir = args.input or r"q:\IITg intern\vsr_output\mouth_crops"
-        output_dir = args.output or r"q:\IITg intern\vsr_output\unique_crops"
+        input_dir = args.input or r"q:\IITg intern\lmr_output\mouth_crops"
+        output_dir = args.output or r"q:\IITg intern\lmr_output\unique_crops"
     else:
-        input_dir = args.input or r"q:\IITg intern\vsr_output\extracted_frames"
-        output_dir = args.output or r"q:\IITg intern\vsr_output\unique_frames"
+        input_dir = args.input or r"q:\IITg intern\lmr_output\extracted_frames"
+        output_dir = args.output or r"q:\IITg intern\lmr_output\unique_frames"
 
     deduplicate_frames(input_dir, output_dir, threshold=args.threshold, use_crops=args.use_crops)

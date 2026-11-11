@@ -1,5 +1,5 @@
 """
-Linguistic Analysis & Word Boundary Alignment for Assamese VSR
+Linguistic Analysis & Word Boundary Alignment for Assamese LMR
 ==============================================================
 Correlates kinematic lip features with ground-truth speech boundaries
 from s320_1351_moi_doi_khalu_u1.lab:

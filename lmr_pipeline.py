@@ -51,7 +51,7 @@ from vlr.visualization import (
 def process_video(video_path, output_dir, crop_size=96,
                   generate_preview=False, save_debug=False):
     """
-    Full VSR pipeline:
+    Full LMR pipeline:
       1. FFmpeg frame extraction (piped into memory)
       2. dlib landmark detection (confidence + failure tracking)
       3. Similarity-transform normalisation (translation + scale + rotation)
@@ -355,7 +355,7 @@ def process_video(video_path, output_dir, crop_size=96,
 
     # === Summary ===
     print(f"\n{'='*60}")
-    print(f"  VSR Pipeline Complete — Full Feature Extraction")
+    print(f"  LMR Pipeline Complete — Full Feature Extraction")
     print(f"{'='*60}")
     print(f"  Total frames        : {frames_processed}")
     print(f"  Faces detected      : {frames_detected} "
