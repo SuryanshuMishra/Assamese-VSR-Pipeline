@@ -1,9 +1,9 @@
-# Visual Speech Recognition (VSR) Pipeline for Assamese Language
+# Lip Motion Recognition (LMR) Pipeline for Assamese Language
 
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![Institution](https://img.shields.io/badge/Institution-IIT%20Guwahati-orange.svg)](https://www.iitg.ac.in/)
 
-An end-to-end, multi-modal feature extraction and linguistic boundary analysis pipeline for **Assamese Visual Speech Recognition (VSR)** and **Audio-Visual Speech Recognition (AVSR)**. Designed to extract high-fidelity geometric, kinematic, and appearance-based lip features from video recordings for speech and viseme recognition.
+An end-to-end, multi-modal feature extraction and linguistic boundary analysis pipeline for **Assamese Lip Motion Recognition (LMR)** and **Audio-Visual Speech Recognition (AVSR)**. Designed to extract high-fidelity geometric, kinematic, and appearance-based lip features from video recordings for speech and viseme recognition.
 
 ---
 
@@ -49,7 +49,7 @@ An end-to-end, multi-modal feature extraction and linguistic boundary analysis p
 ## 📁 Repository Structure
 
 ```
-├── vlr/                                # Core VSR Package
+├── vlr/                                # Core LMR Package
 │   ├── __init__.py                     # Package declaration
 │   ├── extraction.py                   # FFmpeg memory-piped frame decoding
 │   ├── detection.py                    # dlib 68-point face & lip tracking
@@ -58,8 +58,11 @@ An end-to-end, multi-modal feature extraction and linguistic boundary analysis p
 │   ├── shape.py                        # Geometric lip features & temporal derivatives
 │   ├── optical_flow.py                 # Farneback dense optical flow & frame diff
 │   ├── quality.py                      # Blur, brightness, confidence & validity mask
-│   └── visualization.py                # 6 diagnostic plots + 4-panel preview video
-├── vsr_pipeline.py                     # Single-video processing orchestrator
+│   ├── visualization.py                # 6 diagnostic plots + 4-panel preview video
+│   └── linguistics.py                  # Automated C-V and syllable boundary model
+├── lmr_pipeline.py                     # Single-video processing orchestrator (LMR)
+├── vsr_pipeline.py                     # Compatibility alias for lmr_pipeline.py
+├── run_linguistic_analysis.py          # CLI runner for C-V and syllable boundary model
 ├── generate_linguistic_analysis.py     # Phonetic ground-truth (.lab) boundary alignment
 ├── deduplicate_frames.py               # Frame deduplication utility
 ├── VSR_Pipeline_Report.docx            # Full technical development report
@@ -81,20 +84,26 @@ pip install opencv-python dlib numpy pandas matplotlib scipy python-docx
 
 > **Note**: `dlib` shape predictor model (`shape_predictor_68_face_landmarks.dat`) is automatically downloaded on the first run if missing.
 
-### 2. Video Processing
+### 2. Video Processing (Lip Motion Recognition)
 
 Extract all kinematic, shape, optical flow, and visual diagnostic outputs from an input video:
 
 ```bash
-python vsr_pipeline.py --video path/to/video.mp4 --output results/ --preview
+python lmr_pipeline.py --video path/to/video.mp4 --output results/ --preview
 ```
 
-### 3. Linguistic Boundary & Viseme Alignment
+### 3. Linguistic Boundary & Syllabic Analysis
 
-Correlate ground-truth speech transcripts (`.lab` files) with kinematic lip gestures, calculating aperture opening, roundness, and visual preparatory lead times:
+Automatically detect consonant constrictions, vowel nuclei, and syllable zero-crossings across a processed video folder:
 
 ```bash
-python generate_linguistic_analysis.py
+python run_linguistic_analysis.py --input results/ [--lab path/to/transcript.lab]
+```
+
+Or batch-process multiple sentence outputs into a consolidated master summary:
+
+```bash
+python run_linguistic_analysis.py --batch results/ --output-summary corpus_linguistic_summary.csv
 ```
 
 ---
