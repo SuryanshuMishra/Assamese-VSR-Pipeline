@@ -1,1 +1,1 @@
-"""VLR — Visual Lip Reading Pipeline Package."""
+"""VLR — Lip Motion Recognition Pipeline Package."""

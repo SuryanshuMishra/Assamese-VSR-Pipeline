@@ -333,3 +333,4 @@ class LinguisticSegmenter:
         fig.tight_layout()
         fig.savefig(str(graphs_dir / "automated_linguistic_boundaries.png"), dpi=200)
         plt.close(fig)
+

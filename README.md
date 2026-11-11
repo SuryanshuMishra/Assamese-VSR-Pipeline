@@ -115,4 +115,4 @@ python generate_linguistic_analysis.py
 
 - **Language**: Assamese (অসমীয়া)
 - **Institution**: Indian Institute of Technology Guwahati (IIT Guwahati)
-- **Target Application**: Low-resource Visual Lip Reading & Speech Recognition
+- **Target Application**: Low-resource Lip Motion Recognition & Speech Recognition
