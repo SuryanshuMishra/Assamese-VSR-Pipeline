@@ -353,9 +353,17 @@ def process_video(video_path, output_dir, crop_size=96,
     with open(output_dir / "metadata.json", "w") as f:
         json.dump(metadata, f, indent=2)
 
+    # === Automatic Linguistic Analysis (Vision-Only) ===
+    try:
+        from vlr.linguistics import LinguisticSegmenter
+        segmenter = LinguisticSegmenter()
+        ling_summary = segmenter.process_sentence(output_dir, save_plots=True)
+    except Exception as e:
+        ling_summary = None
+
     # === Summary ===
     print(f"\n{'='*60}")
-    print(f"  LMR Pipeline Complete — Full Feature Extraction")
+    print(f"  LMR Pipeline Complete — Full Feature Extraction & Linguistic Model")
     print(f"{'='*60}")
     print(f"  Total frames        : {frames_processed}")
     print(f"  Faces detected      : {frames_detected} "
@@ -365,9 +373,14 @@ def process_video(video_path, output_dir, crop_size=96,
     print(f"  Failed frames       : {len(failed_indices)}")
     print(f"  Processing time     : {elapsed:.1f}s "
           f"({frames_processed/elapsed:.1f} fps)")
+    if ling_summary:
+        print(f"  Linguistic Model    : {ling_summary['vowel_segments_count']} Vowels, "
+              f"{ling_summary['consonant_segments_count']} Consonants detected")
     print(f"  Outputs:")
     print(f"    CSVs                : {csvs_dir}")
     print(f"    Graphs              : {graphs_dir}")
+    print(f"    Linguistic Segments : {csvs_dir / 'cv_segments.csv'}")
+    print(f"    Linguistic Plot     : {graphs_dir / 'automated_linguistic_boundaries.png'}")
     print(f"    Mouth crops (96×96) : {crops_dir}")
     print(f"    Metadata JSON       : {output_dir / 'metadata.json'}")
     if generate_preview:

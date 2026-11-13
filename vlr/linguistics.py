@@ -1,11 +1,12 @@
 """
-Linguistic Boundary & Consonant-Vowel (C-V) Segmentation Model
-=============================================================
-Automated model to detect:
-1. Speech vs Silence Boundaries (Visual Voice Activity Detection & Preparatory Lead Time)
-2. Syllable Boundaries via Aperture Velocity Zero-Crossings (d(Aperture)/dt = 0)
+Video-Only Linguistic Boundary & Consonant-Vowel (C-V) Segmentation Model
+========================================================================
+Pure visual articulatory analysis without any audio or transcripts.
+Detects:
+1. Visual Speech vs Resting Silence (Visual Voice Activity Detection)
+2. Syllable Transitions via Aperture Velocity Zero-Crossings (d(Aperture)/dt = 0)
 3. Consonant Constriction Nadirs (Valleys) vs Vowel Nuclei Expansions (Peaks)
-4. Viseme Classification (Bilabials, Open Vowels, Spread Vowels, Rounded Vowels)
+4. Visual Viseme Classification (Bilabials, Open Vowels, Spread Vowels, Rounded Vowels)
 """
 import json
 from pathlib import Path
@@ -17,7 +18,7 @@ import matplotlib.pyplot as plt
 
 
 class LinguisticSegmenter:
-    """Automated linguistic and phonological feature segmenter for LMR."""
+    """Automated vision-only linguistic feature segmenter for Lip Motion Recognition."""
 
     def __init__(
         self,
@@ -34,10 +35,9 @@ class LinguisticSegmenter:
     def process_sentence(
         self,
         results_dir: Union[str, Path],
-        lab_file: Optional[Union[str, Path]] = None,
         save_plots: bool = True
     ) -> Dict:
-        """Run linguistic C-V and boundary analysis on a processed video folder."""
+        """Run purely visual linguistic C-V and boundary analysis on a processed video folder."""
         results_dir = Path(results_dir)
         csv_dir = results_dir / "csvs"
         graphs_dir = results_dir / "graphs"
@@ -53,7 +53,7 @@ class LinguisticSegmenter:
         n_frames = len(time_sec)
         fps = float(1.0 / np.median(np.diff(time_sec))) if n_frames > 1 else 25.0
 
-        # Load optional metadata
+        # Load metadata
         meta_path = results_dir / "metadata.json"
         metadata = {}
         if meta_path.exists():
@@ -76,8 +76,7 @@ class LinguisticSegmenter:
             smooth_aperture = raw_aperture
             d_aperture = shape_df["d_mouth_opening"].values
 
-        # 3. Detect Baseline Silence & Active Speech Window (Visual VAD)
-        # Baseline estimated from the first 20% or 0.8s of the recording
+        # 3. Visual Voice Activity Detection (V-VAD): Resting Silence Baseline
         silence_cutoff = min(0.8, time_sec[-1] * 0.2)
         silence_mask = time_sec < silence_cutoff
         base_aperture = np.median(smooth_aperture[silence_mask]) if np.any(silence_mask) else 2.0
@@ -85,27 +84,13 @@ class LinguisticSegmenter:
 
         aperture_thresh = base_aperture + max(2.5, 2.0 * std_aperture)
 
-        # 4. Optional: Parse ground truth .lab if available
-        lab_segments = []
-        acoustic_speech_window = None
-        if lab_file and Path(lab_file).exists():
-            lab_segments = self._parse_lab(Path(lab_file))
-            speech_words = [s for s in lab_segments if s["word"].lower() not in ("sil", "sp", "silence")]
-            if speech_words:
-                acoustic_speech_window = (speech_words[0]["start"], speech_words[-1]["end"])
-
-        # 5. Detect Syllable & Boundary Inflection Points
-        # Vowel Peaks: local maxima in aperture (d_aperture crossings from + to -)
+        # 4. Detect Syllable & Boundary Inflection Points
         min_dist_frames = max(3, int(fps * (self.min_vowel_ms / 1000.0)))
         peak_indices, _ = find_peaks(smooth_aperture, distance=min_dist_frames, prominence=1.5)
-
-        # Consonant Constriction Nadirs: local minima in aperture
         nadir_indices, _ = find_peaks(-smooth_aperture, distance=min_dist_frames, prominence=1.0)
-
-        # Zero-crossings of velocity (inflection points between closing & opening)
         zero_crossings = np.where(np.diff(np.sign(d_aperture)))[0]
 
-        # 6. Classify Continuous Frames into C-V & Viseme Classes
+        # 5. Classify Frames into C-V and Viseme Classes purely from video kinematics
         frame_labels = []
         for i in range(n_frames):
             t = time_sec[i]
@@ -115,13 +100,10 @@ class LinguisticSegmenter:
             rnd = raw_roundness[i]
             wd = raw_width[i]
 
-            # In silence period?
-            if acoustic_speech_window:
-                is_in_speech = (t >= acoustic_speech_window[0] - 0.2) and (t <= acoustic_speech_window[1] + 0.1)
-            else:
-                is_in_speech = ap > (base_aperture + 1.5) or vel > 30.0
+            # Visual activity check
+            is_active = (ap > (base_aperture + 1.2)) or (vel > 25.0) or (ar > 150.0)
 
-            if not is_in_speech:
+            if not is_active:
                 label = "Silence"
                 viseme = "RESTING"
             else:
@@ -158,7 +140,7 @@ class LinguisticSegmenter:
         frame_df = pd.DataFrame(frame_labels)
         frame_df.to_csv(csv_dir / "frame_linguistic_labels.csv", index=False)
 
-        # 7. Aggregate Contiguous Segments
+        # 6. Aggregate Contiguous Segments
         segments = []
         if not frame_df.empty:
             curr_label = frame_df.loc[0, "label"]
@@ -195,18 +177,7 @@ class LinguisticSegmenter:
         seg_df = pd.DataFrame(segments)
         seg_df.to_csv(csv_dir / "cv_segments.csv", index=False)
 
-        # 8. Measure Visual Preparatory Lead Time (Coarticulation)
-        lead_time_ms = None
-        if acoustic_speech_window:
-            t_audio_start = acoustic_speech_window[0]
-            # Search 500ms pre-speech window for first significant aperture or velocity rise
-            pre_mask = (time_sec >= t_audio_start - 0.5) & (time_sec <= t_audio_start)
-            pre_idx = np.where(pre_mask & (d_aperture > 15.0))[0]
-            if len(pre_idx) > 0:
-                t_vis_start = time_sec[pre_idx[0]]
-                lead_time_ms = round(float((t_audio_start - t_vis_start) * 1000.0), 1)
-
-        # 9. Summary Statistics
+        # 7. Summary Statistics
         vowels_only = seg_df[seg_df["type"] == "Vowel"]
         consonants_only = seg_df[seg_df["type"] == "Consonant"]
 
@@ -216,8 +187,6 @@ class LinguisticSegmenter:
             "total_duration_sec": round(float(time_sec[-1]), 3),
             "total_frames": n_frames,
             "fps": round(fps, 2),
-            "acoustic_speech_window": list(acoustic_speech_window) if acoustic_speech_window else None,
-            "visual_lead_time_ms": lead_time_ms,
             "vowel_segments_count": int(len(vowels_only)),
             "consonant_segments_count": int(len(consonants_only)),
             "mean_vowel_duration_ms": round(float(vowels_only["duration_ms"].mean()), 1) if not vowels_only.empty else 0.0,
@@ -231,33 +200,12 @@ class LinguisticSegmenter:
         with open(results_dir / "linguistic_summary.json", "w", encoding="utf-8") as f:
             json.dump(summary, f, indent=2)
 
-        # 10. Generate Automated Boundary Plot
+        # 8. Generate Automated Boundary Plot (Video-Only)
         if save_plots:
             self._generate_plot(time_sec, raw_aperture, smooth_aperture, d_aperture,
-                                peak_indices, nadir_indices, seg_df, graphs_dir,
-                                lead_time_ms, acoustic_speech_window)
+                                peak_indices, nadir_indices, seg_df, graphs_dir)
 
         return summary
-
-    def _parse_lab(self, lab_path: Path) -> List[Dict]:
-        """Parse HTK / Audacity style .lab file."""
-        segments = []
-        with open(lab_path, "r", encoding="utf-8") as f:
-            for line in f:
-                parts = line.strip().split()
-                if len(parts) >= 3:
-                    try:
-                        t0 = float(parts[0])
-                        t1 = float(parts[1])
-                        # Handle potential microsecond formatting (HTK 100ns units)
-                        if t0 > 10000.0:
-                            t0 /= 1e7
-                            t1 /= 1e7
-                        word = parts[2]
-                        segments.append({"start": t0, "end": t1, "word": word})
-                    except ValueError:
-                        continue
-        return segments
 
     def _generate_plot(
         self,
@@ -268,11 +216,9 @@ class LinguisticSegmenter:
         peaks: np.ndarray,
         nadirs: np.ndarray,
         seg_df: pd.DataFrame,
-        graphs_dir: Path,
-        lead_time_ms: Optional[float],
-        acoustic_window: Optional[Tuple[float, float]]
+        graphs_dir: Path
     ):
-        """Generate multi-panel publication plot of linguistic segmentation."""
+        """Generate multi-panel plot of video-only linguistic segmentation."""
         fig, axes = plt.subplots(2, 1, figsize=(14, 8), sharex=True)
 
         color_map = {
@@ -296,21 +242,8 @@ class LinguisticSegmenter:
         if len(nadirs) > 0:
             ax.scatter(time_sec[nadirs], smooth_ap[nadirs], color="#D32F2F", marker="v", s=50, zorder=5, label="Consonant Nadirs")
 
-        if acoustic_window:
-            ax.axvline(acoustic_window[0], color="#000000", linestyle="--", linewidth=1.5, label="Acoustic Onset")
-            ax.axvline(acoustic_window[1], color="#000000", linestyle="--", linewidth=1.5)
-
-        if lead_time_ms is not None and acoustic_window:
-            t_on = acoustic_window[0]
-            ax.annotate(f"Visual Lead: {lead_time_ms:.0f} ms",
-                        xy=(t_on, smooth_ap.max() * 0.7),
-                        xytext=(t_on - 0.6, smooth_ap.max() * 0.85),
-                        arrowprops=dict(facecolor="black", shrink=0.05, width=1.2, headwidth=5),
-                        fontweight="bold", color="#B71C1C",
-                        bbox=dict(boxstyle="round,pad=0.3", facecolor="#FFEBEE", edgecolor="#D32F2F"))
-
         ax.set_ylabel("Mouth Opening (px)", fontweight="bold")
-        ax.set_title("Automated Linguistic Segmentation: Vowel Expansions (Blue) vs Consonant Constrictions (Red)",
+        ax.set_title("Video-Only Linguistic Segmentation: Vowel Expansions (Blue) vs Consonant Constrictions (Red)",
                      fontsize=12, fontweight="bold")
         ax.grid(True, alpha=0.3)
         ax.legend(loc="upper left", fontsize=9)
@@ -333,4 +266,3 @@ class LinguisticSegmenter:
         fig.tight_layout()
         fig.savefig(str(graphs_dir / "automated_linguistic_boundaries.png"), dpi=200)
         plt.close(fig)
-

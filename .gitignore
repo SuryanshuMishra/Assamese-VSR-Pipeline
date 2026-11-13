@@ -22,6 +22,7 @@ shape_predictor_68_face_landmarks.dat*
 vsr_output/
 lmr_output/
 test_single_output/
+test_s303/
 s320_1351_output/
 mouth_crops/
 debug_frames/
