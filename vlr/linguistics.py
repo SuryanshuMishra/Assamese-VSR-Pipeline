@@ -15,6 +15,9 @@ import numpy as np
 import pandas as pd
 from scipy.signal import find_peaks, savgol_filter
 import matplotlib.pyplot as plt
+import joblib
+
+DEFAULT_MODEL_PATH = Path("models/best_multi_speaker_lmr_model.joblib")
 
 
 class LinguisticSegmenter:
@@ -90,8 +93,48 @@ class LinguisticSegmenter:
         nadir_indices, _ = find_peaks(-smooth_aperture, distance=min_dist_frames, prominence=1.0)
         zero_crossings = np.where(np.diff(np.sign(d_aperture)))[0]
 
-        # 5. Classify Frames into C-V and Viseme Classes purely from video kinematics
+        # 5. Classify Frames into C-V and Viseme Classes using Trained ML Model (with fallback)
+        ml_model = None
+        feature_cols = None
+        if DEFAULT_MODEL_PATH.exists():
+            try:
+                bundle = joblib.load(DEFAULT_MODEL_PATH)
+                ml_model = bundle.get("model")
+                feature_cols = bundle.get("feature_names")
+            except Exception as e:
+                ml_model = None
+
+        w0 = max(float(np.median(raw_width)), 50.0)
+        motion_energy = flow_df["motion_energy"].values if "motion_energy" in flow_df.columns else np.zeros(n_frames)
+
+        # Precompute ML predictions if model is loaded
+        ml_preds = None
+        ml_probs = None
+        if ml_model is not None and feature_cols is not None:
+            try:
+                X_df = pd.DataFrame({
+                    "mouth_opening": raw_aperture,
+                    "inner_area": raw_area,
+                    "mouth_width": raw_width,
+                    "roundness": raw_roundness,
+                    "aspect_ratio": shape_df["aspect_ratio"].values if "aspect_ratio" in shape_df.columns else raw_aperture / np.maximum(raw_width, 1.0),
+                    "d_mouth_opening": d_aperture,
+                    "d2_mouth_opening": np.gradient(d_aperture, time_sec) if n_frames > 1 else np.zeros(n_frames),
+                    "mean_vel": mean_vel,
+                    "max_vel": motion_df["max_vel"].values if "max_vel" in motion_df.columns else mean_vel,
+                    "motion_energy": motion_energy,
+                    "norm_aperture": raw_aperture / w0,
+                    "norm_inner_area": raw_area / (w0 ** 2),
+                    "norm_width": raw_width / w0
+                })[feature_cols]
+                ml_preds = ml_model.predict(X_df.values)
+                ml_probs = ml_model.predict_proba(X_df.values)
+            except Exception:
+                ml_preds = None
+                ml_probs = None
+
         frame_labels = []
+        ml_records = []
         for i in range(n_frames):
             t = time_sec[i]
             ap = smooth_aperture[i]
@@ -103,12 +146,20 @@ class LinguisticSegmenter:
             # Visual activity check
             is_active = (ap > (base_aperture + 1.2)) or (vel > 25.0) or (ar > 150.0)
 
+            p_v = float(ml_probs[i][1]) if ml_probs is not None else (1.0 if ap >= aperture_thresh else 0.0)
+            p_c = float(ml_probs[i][0]) if ml_probs is not None else (1.0 - p_v)
+
             if not is_active:
                 label = "Silence"
                 viseme = "RESTING"
             else:
-                # Aperture expansion vs constriction
-                if ap >= aperture_thresh or (ar > 300.0 and ap > base_aperture + 2.0):
+                # Use ML model prediction when available, otherwise heuristic
+                if ml_preds is not None:
+                    is_vowel = bool(ml_preds[i] == 1)
+                else:
+                    is_vowel = bool(ap >= aperture_thresh or (ar > 300.0 and ap > base_aperture + 2.0))
+
+                if is_vowel:
                     label = "Vowel"
                     if rnd > 0.35:
                         viseme = "VOWEL_ROUNDED" # /u, o/
@@ -134,11 +185,26 @@ class LinguisticSegmenter:
                 "inner_area_px2": round(float(ar), 2),
                 "width_px": round(float(wd), 2),
                 "roundness": round(float(rnd), 4),
-                "d_aperture_dt": round(float(d_aperture[i]), 2)
+                "d_aperture_dt": round(float(d_aperture[i]), 2),
+                "prob_vowel": round(p_v, 4),
+                "prob_consonant": round(p_c, 4)
+            })
+
+            ml_records.append({
+                "frame": int(lm_df.loc[i, "frame"]),
+                "timestamp_sec": round(float(t), 4),
+                "predicted_class": label if label != "Silence" else ("Vowel" if p_v > p_c else "Consonant"),
+                "is_active_speech": is_active,
+                "prob_vowel": round(p_v, 4),
+                "prob_consonant": round(p_c, 4),
+                "mouth_opening_px": round(float(ap), 2),
+                "inner_area_px2": round(float(ar), 2),
             })
 
         frame_df = pd.DataFrame(frame_labels)
         frame_df.to_csv(csv_dir / "frame_linguistic_labels.csv", index=False)
+
+        pd.DataFrame(ml_records).to_csv(csv_dir / "ml_vowel_consonant_predictions.csv", index=False)
 
         # 6. Aggregate Contiguous Segments
         segments = []
@@ -184,6 +250,7 @@ class LinguisticSegmenter:
         summary = {
             "results_dir": str(results_dir),
             "video_file": metadata.get("video_file", "unknown"),
+            "model_engine": "Trained Multi-Speaker Random Forest" if ml_model is not None else "Heuristic Kinematic Rule",
             "total_duration_sec": round(float(time_sec[-1]), 3),
             "total_frames": n_frames,
             "fps": round(fps, 2),

@@ -1,0 +1,157 @@
+{
+  "speakers_count": 4,
+  "speakers": [
+    "s272",
+    "s273",
+    "s276",
+    "s278"
+  ],
+  "sentences_count": 15,
+  "total_active_speech_frames": 6771,
+  "vowels_count": 3256,
+  "consonants_count": 3515,
+  "top_predictive_features": [
+    "inner_area",
+    "mouth_opening",
+    "norm_aperture",
+    "norm_inner_area",
+    "norm_width"
+  ],
+  "loso_mean_summary": {
+    "Random Forest": {
+      "mean_accuracy": 0.7252,
+      "std_accuracy": 0.1316,
+      "mean_precision": 0.8624,
+      "mean_recall": 0.655,
+      "mean_f1_score": 0.6536
+    },
+    "Gradient Boosting": {
+      "mean_accuracy": 0.6718,
+      "std_accuracy": 0.1258,
+      "mean_precision": 0.8697,
+      "mean_recall": 0.5394,
+      "mean_f1_score": 0.5396
+    },
+    "Support Vector Machine (RBF)": {
+      "mean_accuracy": 0.6921,
+      "std_accuracy": 0.1191,
+      "mean_precision": 0.8389,
+      "mean_recall": 0.6147,
+      "mean_f1_score": 0.5852
+    },
+    "Logistic Regression": {
+      "mean_accuracy": 0.7069,
+      "std_accuracy": 0.093,
+      "mean_precision": 0.8333,
+      "mean_recall": 0.6417,
+      "mean_f1_score": 0.6199
+    }
+  },
+  "loso_fold_breakdown": {
+    "s272": {
+      "Random Forest": {
+        "accuracy": 0.784,
+        "precision": 0.9498,
+        "recall": 0.6088,
+        "f1_score": 0.742
+      },
+      "Gradient Boosting": {
+        "accuracy": 0.6546,
+        "precision": 0.9736,
+        "recall": 0.332,
+        "f1_score": 0.4952
+      },
+      "Support Vector Machine (RBF)": {
+        "accuracy": 0.7039,
+        "precision": 0.9684,
+        "recall": 0.4337,
+        "f1_score": 0.5991
+      },
+      "Logistic Regression": {
+        "accuracy": 0.7058,
+        "precision": 0.9608,
+        "recall": 0.4414,
+        "f1_score": 0.6049
+      }
+    },
+    "s273": {
+      "Random Forest": {
+        "accuracy": 0.5874,
+        "precision": 1.0,
+        "recall": 0.1404,
+        "f1_score": 0.2462
+      },
+      "Gradient Boosting": {
+        "accuracy": 0.5419,
+        "precision": 1.0,
+        "recall": 0.0457,
+        "f1_score": 0.0873
+      },
+      "Support Vector Machine (RBF)": {
+        "accuracy": 0.554,
+        "precision": 1.0,
+        "recall": 0.0708,
+        "f1_score": 0.1322
+      },
+      "Logistic Regression": {
+        "accuracy": 0.5918,
+        "precision": 1.0,
+        "recall": 0.1495,
+        "f1_score": 0.2602
+      }
+    },
+    "s276": {
+      "Random Forest": {
+        "accuracy": 0.9125,
+        "precision": 0.9285,
+        "recall": 0.8709,
+        "f1_score": 0.8988
+      },
+      "Gradient Boosting": {
+        "accuracy": 0.8782,
+        "precision": 0.9363,
+        "recall": 0.7798,
+        "f1_score": 0.8509
+      },
+      "Support Vector Machine (RBF)": {
+        "accuracy": 0.8768,
+        "precision": 0.8045,
+        "recall": 0.956,
+        "f1_score": 0.8737
+      },
+      "Logistic Regression": {
+        "accuracy": 0.8505,
+        "precision": 0.7582,
+        "recall": 0.976,
+        "f1_score": 0.8534
+      }
+    },
+    "s278": {
+      "Random Forest": {
+        "accuracy": 0.6168,
+        "precision": 0.5714,
+        "recall": 1.0,
+        "f1_score": 0.7273
+      },
+      "Gradient Boosting": {
+        "accuracy": 0.6125,
+        "precision": 0.5687,
+        "recall": 1.0,
+        "f1_score": 0.7251
+      },
+      "Support Vector Machine (RBF)": {
+        "accuracy": 0.6337,
+        "precision": 0.5826,
+        "recall": 0.9983,
+        "f1_score": 0.7358
+      },
+      "Logistic Regression": {
+        "accuracy": 0.6794,
+        "precision": 0.6144,
+        "recall": 1.0,
+        "f1_score": 0.7612
+      }
+    }
+  },
+  "joint_model_accuracy": 0.962
+}

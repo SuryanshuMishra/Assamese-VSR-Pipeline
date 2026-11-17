@@ -19,6 +19,15 @@ shape_predictor_68_face_landmarks.dat*
 *.avi
 *.mov
 *.mkv
+*.zip
+cross_speaker_data/
+cross_speaker_features/
+cross_speaker_dataset.csv
+multi_speaker_dataset.csv
+test_unseen_videos/
+test_unseen_prediction/
+test_s322_prediction/
+test_pipeline_unseen/
 vsr_output/
 lmr_output/
 test_single_output/

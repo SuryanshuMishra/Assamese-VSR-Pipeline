@@ -374,13 +374,15 @@ def process_video(video_path, output_dir, crop_size=96,
     print(f"  Processing time     : {elapsed:.1f}s "
           f"({frames_processed/elapsed:.1f} fps)")
     if ling_summary:
-        print(f"  Linguistic Model    : {ling_summary['vowel_segments_count']} Vowels, "
+        engine = ling_summary.get('model_engine', 'Trained ML')
+        print(f"  Linguistic Model ({engine}): {ling_summary['vowel_segments_count']} Vowels, "
               f"{ling_summary['consonant_segments_count']} Consonants detected")
     print(f"  Outputs:")
     print(f"    CSVs                : {csvs_dir}")
     print(f"    Graphs              : {graphs_dir}")
     print(f"    Linguistic Segments : {csvs_dir / 'cv_segments.csv'}")
     print(f"    Linguistic Plot     : {graphs_dir / 'automated_linguistic_boundaries.png'}")
+    print(f"    ML Predictions CSV  : {csvs_dir / 'ml_vowel_consonant_predictions.csv'}")
     print(f"    Mouth crops (96×96) : {crops_dir}")
     print(f"    Metadata JSON       : {output_dir / 'metadata.json'}")
     if generate_preview:
