@@ -5,6 +5,8 @@
 
 An end-to-end, multi-modal feature extraction and linguistic boundary analysis pipeline for **Assamese Lip Motion Recognition (LMR)**. Designed to extract high-fidelity geometric, kinematic, and appearance-based lip features from video recordings for speech and viseme recognition.
 
+> 📄 **Submission Report:** Read the complete technical and experimental report directly on GitHub: [LMR_Pipeline_Report.md](LMR_Pipeline_Report.md), or download the official [Word Document (DOCX)](LMR_Pipeline_Report.docx) and [Compiled PDF](LMR_Pipeline_Report.pdf).
+
 ---
 
 ## 🌟 Architecture Overview
@@ -68,7 +70,8 @@ An end-to-end, multi-modal feature extraction and linguistic boundary analysis p
 ├── run_linguistic_analysis.py          # CLI runner for C-V and syllable boundary model
 ├── deduplicate_frames.py               # Frame deduplication utility
 ├── models/                             # Trained multi-speaker models & evaluation plots
-├── LMR_Pipeline_Report.docx            # Full technical development report (Word)
+├── LMR_Pipeline_Report.md            # Full technical development report (Markdown)
+├── LMR_Pipeline_Report.docx          # Full technical development report (Word)
 ├── LMR_Pipeline_Report.pdf             # Full technical development report (PDF)
 └── README.md
 ```
