@@ -355,7 +355,7 @@ def process_video(video_path, output_dir, crop_size=96,
 
     # === Automatic Linguistic Analysis (Vision-Only) ===
     try:
-        from vlr.linguistics import LinguisticSegmenter
+        from linguistic import LinguisticSegmenter
         segmenter = LinguisticSegmenter()
         ling_summary = segmenter.process_sentence(output_dir, save_plots=True)
     except Exception as e:

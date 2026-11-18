@@ -15,7 +15,7 @@ import sys
 from pathlib import Path
 import pandas as pd
 
-from vlr.linguistics import LinguisticSegmenter
+from linguistic import LinguisticSegmenter
 
 # Force UTF-8 stdout
 if sys.stdout.encoding != 'utf-8':
