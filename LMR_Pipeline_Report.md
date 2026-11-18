@@ -180,7 +180,42 @@ The integrated pipeline was verified on a completely unseen recording:
 
 ---
 
-## 7. Codebase Inventory & Primary Deliverables
+## 7. System Limitations, Failure Modes & Environmental Sensitivity
+
+Establishing operational boundaries and failure modes is essential for reliable deployment and academic reproducibility. The pipeline exhibits known performance degradations under specific physical conditions:
+
+### 7.1 Illumination & Photometric Degradation
+- **Low Light ($\text{Luma} < 40$):** dlib's HOG facial detector relies on contrast gradients. Under severe underexposure, the lip vermilion border blurs into the surrounding perioral skin. Landmarks 48–67 jitter or collapse towards the centroid, triggering false consonant (closure) predictions.
+- **Harsh Directional Shadows:** Asymmetric lateral lighting casts strong shadows across one oral commissure, artificially skewing horizontal mouth width and corrupting roundness ratios.
+- **Overexposure & Backlight:** Saturated highlights wash out the inner-lip contour, corrupting the Shoelace polygon area calculation (`inner_area`).
+
+### 7.2 Head Pose & Perspective Foreshortening
+- **Yaw Rotation ($> 20^\circ$ off-axis):** 2D perspective projection compresses horizontal mouth width. Because scale-invariant normalization relies on resting width $W_0$, yaw rotation artificially inflates `norm_aperture`, causing false vowel predictions.
+- **Pitch (Looking Up / Down):** Looking downward causes the upper lip to occlude the inner oral cavity, suppressing measured aperture and inner area.
+
+### 7.3 Motion Blur & Temporal Sampling Limits
+- **Plosive Closure Sampling:** At 30 fps ($\Delta t \approx 33.3\text{ ms}$), fast plosive closures (/p, b, t, k/) may span only 1 video frame. If the frame is captured during the opening/closing transition rather than peak closure, the nadir is blunted.
+- **Exposure Motion Blur:** Slow camera shutter speeds blur rapid lip movements, blunting the 1st and 2nd temporal derivatives (`d_mouth_opening`, `d2_mouth_opening`).
+
+### 7.4 Facial Occlusions
+- **Facial Hair:** Dense moustaches covering the upper vermilion border (landmarks 50–52) force landmark regression to infer rather than detect edges, introducing constant vertical aperture offsets.
+- **Hands & Microphones:** Occlusions across the lower face cause face detection dropouts.
+
+### 7.5 Proactive Defense via `lmr/quality.py`
+To mitigate these limitations, [lmr/quality.py](./lmr/quality.py) acts as a quality gatekeeper:
+- Evaluates Laplacian blur variance, mean luma brightness (flagging $<40$ or $>230$), and crop-centre jitter.
+- Generates a per-frame `validity_mask` in `quality_log.csv`, enabling downstream applications to automatically filter out unviable frames.
+
+| Environmental Factor | Physical Degradation Mechanism | Impact on Visual Features | Proactive Mitigation Strategy |
+|:---|:---|:---|:---|
+| **Low Light ($<40$ luma)** | Gradient contrast collapse | Aperture underestimation (false closures) | `quality.py` luma check; adaptive histogram equalization |
+| **Yaw Head Pose ($>20^\circ$)** | Perspective foreshortening | Width compression; skewed `norm_aperture` | Face angle thresholding; near-frontal camera geometry |
+| **Rapid Motion Blur** | Shutter lag during fast speech | Blunted velocity peaks (`d_mouth_opening`) | Higher capture framerate (60+ fps); Laplacian blur gating |
+| **Upper Lip Occlusion** | Keypoint regression occlusion | Artificially reduced `inner_area` | Quality validity masking; Savitzky-Golay temporal smoothing |
+
+---
+
+## 8. Codebase Inventory & Primary Deliverables
 
 All deliverables have been validated and pushed to the remote repository under commit `9a56bc9`:
 
@@ -201,7 +236,7 @@ All deliverables have been validated and pushed to the remote repository under c
 
 ---
 
-## 8. Conclusions & Next Steps
+## 9. Conclusions & Next Steps
 
 1. **Rigorous Validation:** The Assamese Lip Motion Recognition system successfully establishes that **pure visual speech kinematics** (without audio or transcripts) can discriminate vowels from consonants across speakers with high accuracy (72.52% mean speaker-independent LOSO accuracy, 96.20% joint accuracy).
 2. **Deterministic Classical Models:** By avoiding neural networks, the entire inference process executes in **<20 seconds on standard CPU hardware**, with zero black-box opacity and fully interpretable Gini feature rankings.
