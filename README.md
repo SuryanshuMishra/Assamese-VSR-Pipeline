@@ -49,7 +49,7 @@ An end-to-end, multi-modal feature extraction and linguistic boundary analysis p
 ## 📁 Repository Structure
 
 ```
-├── vlr/                                # Core LMR Package
+├── lmr/                                # Core LMR Package
 │   ├── __init__.py                     # Package declaration
 │   ├── extraction.py                   # FFmpeg memory-piped frame decoding
 │   ├── detection.py                    # dlib 68-point face & lip tracking
@@ -60,11 +60,16 @@ An end-to-end, multi-modal feature extraction and linguistic boundary analysis p
 │   ├── quality.py                      # Blur, brightness, confidence & validity mask
 │   ├── visualization.py                # 6 diagnostic plots + 4-panel preview video
 │   └── linguistics.py                  # Automated C-V and syllable boundary model
+├── linguistic.py                       # Standalone linguistic engine interface
 ├── lmr_pipeline.py                     # Single-video processing orchestrator (LMR)
+├── predict_unseen_video.py             # Inference on unseen videos with trained ML model
+├── train_cross_speaker_lmr.py          # Multi-speaker ML training & LOSO benchmark
+├── prepare_cross_speaker_data.py       # Corpus extractor for multi-speaker matching sets
 ├── run_linguistic_analysis.py          # CLI runner for C-V and syllable boundary model
-├── generate_linguistic_analysis.py     # Phonetic ground-truth (.lab) boundary alignment
 ├── deduplicate_frames.py               # Frame deduplication utility
-├── LMR_Pipeline_Report.docx            # Full technical development report
+├── models/                             # Trained multi-speaker models & evaluation plots
+├── LMR_Pipeline_Report.docx            # Full technical development report (Word)
+├── LMR_Pipeline_Report.pdf             # Full technical development report (PDF)
 └── README.md
 ```
 

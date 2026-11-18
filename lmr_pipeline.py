@@ -1,17 +1,18 @@
 """
 Lip Motion Recognition (LMR) Pipeline — Main Orchestrator
 ==========================================================
-Wires together all vlr/ modules into a complete feature extraction pipeline.
+Wires together all lmr/ modules into a complete feature extraction pipeline.
 
 Modules used:
-    vlr.extraction      — FFmpeg frame extraction
-    vlr.detection        — dlib landmark detection
-    vlr.normalization    — Similarity-transform normalisation
-    vlr.motion           — Per-keypoint motion features
-    vlr.shape            — Mouth shape measurements
-    vlr.optical_flow     — Dense optical flow + frame differencing
-    vlr.quality          — Quality metrics + validity mask
-    vlr.visualization    — Preview video + static plots
+    lmr.extraction      — FFmpeg frame extraction
+    lmr.detection        — dlib landmark detection
+    lmr.normalization    — Similarity-transform normalisation
+    lmr.motion           — Per-keypoint motion features
+    lmr.shape            — Mouth shape measurements
+    lmr.optical_flow     — Dense optical flow + frame differencing
+    lmr.quality          — Quality metrics + validity mask
+    lmr.visualization    — Preview video + static plots
+    linguistic           — Vowel vs Consonant ML model & boundary segmentation
 
 Usage:
     python lmr_pipeline.py --video <path> [--output <dir>] [--crop-size 96]
@@ -28,14 +29,14 @@ import cv2
 import numpy as np
 import pandas as pd
 
-from vlr.extraction import get_video_info, frame_generator
-from vlr.detection import LandmarkDetector
-from vlr.normalization import normalize_frame
-from vlr.motion import compute_motion_features, compute_total_distance
-from vlr.shape import compute_shape_features
-from vlr.optical_flow import compute_optical_flow_features, compute_flow_visualization
-from vlr.quality import compute_quality_metrics, build_quality_log
-from vlr.visualization import (
+from lmr.extraction import get_video_info, frame_generator
+from lmr.detection import LandmarkDetector
+from lmr.normalization import normalize_frame
+from lmr.motion import compute_motion_features, compute_total_distance
+from lmr.shape import compute_shape_features
+from lmr.optical_flow import compute_optical_flow_features, compute_flow_visualization
+from lmr.quality import compute_quality_metrics, build_quality_log
+from lmr.visualization import (
     draw_landmarks_on_frame,
     draw_displacement_vectors,
     create_preview_frame,
