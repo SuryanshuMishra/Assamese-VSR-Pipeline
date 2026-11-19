@@ -158,16 +158,16 @@ def polish_doc():
             p.paragraph_format.space_before = Pt(6)
             p.paragraph_format.space_after = Pt(2)
             
-    # Proportional sizes tuned for column width (~6.0 to 6.3 in wide, publication quality)
+    # Proportional sizes tuned for column width (~6.0 in wide, max height ~2.97 in)
     new_sizes = [
-        (6.20, 2.63), # Fig 1 (ar=2.36)
-        (6.30, 1.49), # Fig 2 (ar=4.24)
-        (5.80, 2.70), # Fig 3 (ar=2.15)
-        (5.30, 2.80), # Fig 4 (ar=1.89)
-        (6.20, 2.71), # Fig 5 (ar=2.29) - Made substantially larger with bold labels
-        (6.20, 2.88), # Fig 6 (ar=2.15) - Made substantially larger with bold labels
-        (5.80, 2.65), # Fig 7 (ar=2.12) - Made substantially larger with bold labels
-        (4.80, 2.05), # Fig 8 (ar=2.34) - Made substantially larger with bold labels
+        (5.20, 2.97), # Fig 1 (ar=1.75)
+        (6.00, 1.42), # Fig 2 (ar=4.24)
+        (5.90, 2.11), # Fig 3 (ar=2.80)
+        (5.90, 1.97), # Fig 4 (ar=3.00)
+        (5.60, 2.40), # Fig 5 (ar=2.33)
+        (5.60, 2.24), # Fig 6 (ar=2.50)
+        (5.40, 2.70), # Fig 7 (ar=2.00)
+        (3.85, 2.20), # Fig 8 (ar=1.75)
     ]
     for i, (w_in, h_in) in enumerate(new_sizes):
         if i < len(doc.inline_shapes):
