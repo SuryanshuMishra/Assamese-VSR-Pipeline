@@ -60,6 +60,32 @@ To ensure robustness against variations in head size, speaker-to-camera distance
 | **12** | `norm_inner_area`| $\frac{\text{inner\_area}}{W_0^2}$ | Scale-invariant oral cavity expansion |
 | **13** | `norm_width` | $\frac{\text{mouth\_width}}{W_0}$ | Scale-invariant horizontal mouth expansion |
 
+<p align="center">
+  <img src="reports/figures/fig1_raw_vs_normalized.png" alt="Figure 1: Raw vs Normalized Coordinates" width="85%" />
+  <br>
+  <em><b>Figure 1: Comparison of Raw Pixel Landmark Coordinates vs. Scale-Normalized Kinematics.</b> Mouth-centering and inter-ocular/resting-width scale normalization isolate genuine articulatory kinematics from rigid head motion.</em>
+</p>
+
+### 2.2 Real-Time Diagnostic Visualizations
+
+<p align="center">
+  <img src="reports/figures/fig2_preview_frame.png" alt="Figure 2: Multi-Modal Preview Frame" width="85%" />
+  <br>
+  <em><b>Figure 2: Real-Time Multi-Modal Preview Frame Output.</b> Synchronized 4-panel diagnostic view displaying face bounding box, 68 Dlib landmarks, cropped mouth ROI, and dense Gunnar Farnebäck optical flow vectors.</em>
+</p>
+
+<p align="center">
+  <img src="reports/figures/fig3_displacement_heatmap.png" alt="Figure 3: Displacement Heatmap" width="85%" />
+  <br>
+  <em><b>Figure 3: Spatiotemporal Landmark Displacement Heatmap Across 20 Lip Keypoints.</b> Color-coded displacement intensities revealing differential kinematic activity between upper vermilion, lower vermilion, and inner oral boundaries during Assamese speech.</em>
+</p>
+
+<p align="center">
+  <img src="reports/figures/fig4_mouth_opening.png" alt="Figure 4: Mouth Opening Waveform" width="85%" />
+  <br>
+  <em><b>Figure 4: Articulatory Vertical Aperture Waveform, Velocity, and Acceleration Dynamics.</b> Temporal kinematic aperture trace demonstrating clear velocity extrema that map directly onto phonetic transition boundaries.</em>
+</p>
+
 ---
 
 ## 3. Multi-Speaker Corpus Curation & Ground Truth
@@ -104,6 +130,12 @@ Trained on 15 sentences across Speaker S271 (`Bhargav`) and Speaker S275 (`Chira
 | Train S275 $\to$ Test S271 | Logistic Regression | 68.68% | 100.00% | 39.09% | 56.21% |
 | Train S275 $\to$ Test S271 | Gradient Boosting | 67.84% | 100.00% | 37.46% | 54.50% |
 | **Joint Pooled Model** | **Random Forest** | **99.79%** | **99.80%** | **99.80%** | **99.80%** |
+
+<p align="center">
+  <img src="reports/figures/fig5_cross_speaker_generalization.png" alt="Figure 5: Two-Speaker Cross-Speaker Generalization" width="85%" />
+  <br>
+  <em><b>Figure 5: Two-Speaker Cross-Speaker Generalization Benchmark (S271 vs S275).</b> Comparison of within-speaker baseline vs across-speaker generalization across Random Forest, SVM RBF, and HistGradientBoosting.</em>
+</p>
 
 #### Biomechanical Asymmetry Finding:
 When trained on S271 and tested on S275, models exhibited high recall (99%) but lower precision (65%). Conversely, when trained on S275 and tested on S271, models achieved **100.00% precision** but lower recall (40%). 
@@ -153,6 +185,12 @@ xychart-beta
     bar [0.28, 0.22, 0.17, 0.13, 0.08, 0.05, 0.04, 0.03]
 ```
 
+<p align="center">
+  <img src="reports/figures/fig6_multi_speaker_loso_feature_importance.png" alt="Figure 6: Multi-Speaker LOSO and Feature Importance" width="85%" />
+  <br>
+  <em><b>Figure 6: 4-Fold Leave-One-Speaker-Out (LOSO) Cross-Validation Accuracy and Articulatory Feature Importance.</b> Random Forest Gini importance rankings highlighting inner area, mouth opening, and normalized aperture dominance alongside speaker-independent test fold accuracies.</em>
+</p>
+
 1. **`inner_area` & `mouth_opening` (Top Predictors):** Absolute oral expansion remains the single most powerful discriminator of vowel resonance vs. consonant constriction.
 2. **`norm_aperture` & `norm_inner_area` (Normalization Power):** Scale-invariant normalizations prevent the classifier from misinterpreting a small, distant face speaking a vowel as a closed consonant.
 3. **`roundness`:** Critical for separating rounded back vowels (/u, o/) from spread front vowels (/i, e/) and neutral consonants.
@@ -177,6 +215,34 @@ The integrated pipeline was verified on a completely unseen recording:
 - **Face Detection Rate:** 147 / 147 frames (**100.0%**)
 - **Prediction Output:** **12 Vowels, 19 Consonants detected**
 - **Acoustic/Phonetic Verification:** Frame 10 ($t = 0.333\text{ s}$) corresponds to the bilabial consonant closure for the initial **/m/** in *"moi"*. The model accurately predicted **`CONSONANT`** with **`99.98% confidence`** ($P(\text{Consonant}) = 0.9998$) based on a measured aperture of $1.47\text{ px}$ and an inner area of $92.5\text{ px}^2$.
+
+#### Quantitative Output Metrics on Unseen Speaker `S322`:
+
+| Metric / Parameter | Observed Quantitative Output |
+|:---|:---|
+| **Input Unseen Video File** | `s322_884_moi_pitha_kham_u1.mp4` (Speaker S322, Sentence 884) |
+| **Spoken Sentence Meaning** | Assamese: *"মই পিঠা খাম"* (English: *"I will eat pitha"*) |
+| **Video Specifications** | 147 frames @ 30.0 fps, 1280 × 720 px, Total Duration: 4.87 seconds |
+| **Face Tracking Success Rate** | 147 / 147 frames (**100.0%** landmark detection, 0 dropped frames) |
+| **End-to-End Execution Speed** | **19.8 seconds** total runtime (~7.4 fps on commodity CPU) |
+| **Detected Vowel Segments** | 7 continuous vowel segments (Mean duration: 228.6 ms, Mean aperture: 12.79 px) |
+| **Detected Consonant Segments** | 14 consonant segments (Mean duration: 157.1 ms, Mean aperture: 7.18 px) |
+| **Peak Articulatory Aperture** | 27.36 px (observed at frame 62 during open central vowel /a/) |
+| **Peak Inner Oral Cavity Area** | 1,808.5 px² (inner vermilion border Shoelace polygon integration) |
+| **Bilabial Closure Verification** | Frame 10 (/m/ onset in *"moi"*) classified as CONSONANT (99.98% confidence, aperture = 1.47 px) |
+| **Generated Output Artifacts** | `cv_segments.csv`, `ml_vowel_consonant_predictions.csv`, `automated_linguistic_boundaries.png`, `preview.mp4` |
+
+<p align="center">
+  <img src="reports/figures/fig7_s322_prediction_timeline.png" alt="Figure 7: Unseen Video Prediction Timeline" width="85%" />
+  <br>
+  <em><b>Figure 7: Automated Machine Learning Linguistic Prediction Timeline on Unseen Speaker S322.</b> Continuous class-probability trajectories and discrete vowel/consonant classification decisions across 147 video frames without transcripts or audio.</em>
+</p>
+
+<p align="center">
+  <img src="reports/figures/fig8_automated_linguistic_boundaries.png" alt="Figure 8: Automated C-V Boundaries" width="85%" />
+  <br>
+  <em><b>Figure 8: Automated Consonant-Vowel (C-V) Boundary Demarcation and Kinematic Segment Decomposition.</b> Temporal alignment of kinematic aperture, velocity extrema, and automated segment demarcations on completely unseen speech.</em>
+</p>
 
 ---
 
