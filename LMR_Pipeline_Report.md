@@ -91,7 +91,7 @@ To ensure robustness against variations in head size, speaker-to-camera distance
 ## 3. Multi-Speaker Corpus Curation & Ground Truth
 
 ### 3.1 Global Speaker Overlap Analysis
-An exhaustive scan of all 4 downloaded speech archives (over 1,000 video files) across 15 native Assamese speakers (`S271` through `S278`, `S303` through `S306`, `S320` through `S322`) identified the mathematical maximum overlap:
+An exhaustive scan of all 4 downloaded speech archives (1,723 high-definition video recordings) across 16 native Assamese speakers (`S271 F` through `S278`, `S303` through `S306`, `S319 F` through `S322`) identified the mathematical maximum overlap:
 - Groups of $\ge 5$ speakers sharing $\ge 10$ sentences: **0 groups** (5 speakers share only 2 sentences).
 - Groups of 4 speakers sharing $\ge 10$ sentences: **Exactly 1 group** — `['s272', 's273', 's276', 's278']` which shares **17 identical conversational sentences**.
 
