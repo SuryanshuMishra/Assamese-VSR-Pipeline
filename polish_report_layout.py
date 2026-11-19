@@ -83,8 +83,8 @@ def polish_doc():
                 p.paragraph_format.left_indent = Inches(0.35)
                 p.paragraph_format.first_line_indent = -Inches(0.35)
                 p.paragraph_format.tab_stops.add_tab_stop(Inches(0.35))
-                p.paragraph_format.space_before = Pt(3.5)
-                p.paragraph_format.space_after = Pt(1.5)
+                p.paragraph_format.space_before = Pt(6.0)
+                p.paragraph_format.space_after = Pt(2.0)
                 p.paragraph_format.line_spacing = 1.15
                 p.paragraph_format.keep_with_next = True
                 
@@ -103,9 +103,9 @@ def polish_doc():
                 p.paragraph_format.left_indent = Inches(0.65)
                 p.paragraph_format.first_line_indent = -Inches(0.30)
                 p.paragraph_format.tab_stops.add_tab_stop(Inches(0.65))
-                p.paragraph_format.space_before = Pt(1.5)
-                p.paragraph_format.space_after = Pt(1.5)
-                p.paragraph_format.line_spacing = 1.1
+                p.paragraph_format.space_before = Pt(2.0)
+                p.paragraph_format.space_after = Pt(1.0)
+                p.paragraph_format.line_spacing = 1.05
                 p.paragraph_format.keep_with_next = True
                 
                 r0 = p.add_run(f"{num_str}\t")
@@ -126,8 +126,10 @@ def polish_doc():
             p.paragraph_format.page_break_before = True
             break
             
-    # 4. Ensure keep_with_next on all headings
-    for p in doc.paragraphs:
+    # 4. Ensure keep_with_next on all body headings (SKIP Table of Contents!)
+    for idx, p in enumerate(doc.paragraphs):
+        if toc_end is not None and idx < toc_end:
+            continue # DO NOT alter Table of Contents!
         if p.style.name.startswith("Heading") or (p.text and p.text[:2] in ["1.", "2.", "3.", "4.", "5.", "6.", "7.", "8.", "9."] and len(p.text) < 70):
             p.paragraph_format.keep_with_next = True
             p.paragraph_format.space_before = Pt(10)
@@ -195,8 +197,10 @@ def polish_doc():
                     cp.paragraph_format.space_after = Pt(2)
                     cp.paragraph_format.line_spacing = 1.05
 
-    # 8. Section 13 compact spacing to fit cleanly
-    for p in doc.paragraphs:
+    # 8. Section 13 compact spacing to fit cleanly (body paragraphs only!)
+    for idx, p in enumerate(doc.paragraphs):
+        if toc_end is not None and idx < toc_end:
+            continue
         if "13." in p.text:
             p.paragraph_format.space_before = Pt(6)
             p.paragraph_format.space_after = Pt(2)
