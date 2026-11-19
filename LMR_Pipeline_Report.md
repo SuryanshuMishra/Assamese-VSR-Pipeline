@@ -213,7 +213,7 @@ The integrated pipeline was verified on a completely unseen recording:
 - **Speaker:** `S322` (0% representation in the training set)
 - **Processing Time:** **19.8 seconds** (147 frames @ 30.0 fps, 1280×720 resolution, speed: 7.4 fps)
 - **Face Detection Rate:** 147 / 147 frames (**100.0%**)
-- **Prediction Output:** **12 Vowels, 19 Consonants detected**
+- **Prediction Output:** **7 continuous Vowel segments, 14 Consonant segments detected** (Mean vowel duration: 228.6 ms, Mean consonant duration: 157.1 ms)
 - **Acoustic/Phonetic Verification:** Frame 10 ($t = 0.333\text{ s}$) corresponds to the bilabial consonant closure for the initial **/m/** in *"moi"*. The model accurately predicted **`CONSONANT`** with **`99.98% confidence`** ($P(\text{Consonant}) = 0.9998$) based on a measured aperture of $1.47\text{ px}$ and an inner area of $92.5\text{ px}^2$.
 
 #### Quantitative Output Metrics on Unseen Speaker `S322`:
