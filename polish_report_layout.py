@@ -1,15 +1,17 @@
 """
 Polish report layout in LMR_Pipeline_Report.docx and recompile to PDF:
+- Fixes Table of Contents indentation so items 10, 11, 12, 13 use exact tab stops (0.35") matching items 1-9.
+- Subsections 3.1-3.8 use clean nested indentation (0.65").
+- All main section numbers are bold in theme blue (#1565C0).
 - Eliminates all empty dummy paragraphs and random whitespace gaps.
 - Removes arbitrary hard pageBreakBefore from sections 3, 6, 7, 8.
 - Establishes clean page breaks: Cover Page (p.1) -> TOC (p.2) -> Section 1 (p.3).
-- Resizes figures proportionally so they fit naturally into page flow without causing overflow voids.
+- Resizes figures proportionally (max height 2.6 in) so they fit naturally into page flow without causing overflow voids.
 - Enforces keep_with_next on all headings and figures so headings/captions never orphan.
 - Configures repeating table headers (w:tblHeader) and flexible row splitting (w:cantSplit removed from body rows).
 - Tightens cell padding and line spacing across tables and concluding block.
 """
 from pathlib import Path
-import shutil
 import docx
 from docx.shared import Inches, Pt, RGBColor
 from docx.oxml import parse_xml
@@ -17,6 +19,10 @@ from docx.oxml.ns import nsdecls, qn
 
 DOCX_PATH = Path("LMR_Pipeline_Report.docx")
 PDF_PATH = Path("LMR_Pipeline_Report.pdf")
+
+BLUE_COLOR = RGBColor(0x15, 0x65, 0xC0) # Theme blue
+TEXT_COLOR = RGBColor(0x22, 0x22, 0x22)
+SUB_COLOR = RGBColor(0x55, 0x55, 0x55)
 
 def polish_doc():
     print(f"[*] Opening {DOCX_PATH} for layout polishing...")
@@ -31,20 +37,103 @@ def polish_doc():
             if pbb is not None:
                 pPr.remove(pbb)
                 
-    # 2. Add clean page break after Table of Contents (before Section 1)
+    # 2. Format Table of Contents (P19 - P41)
+    toc_start = None
+    toc_end = None
+    for i, p in enumerate(doc.paragraphs):
+        if p.text.strip() == "Table of Contents":
+            toc_start = i
+        elif p.text.strip() == "1. Project Overview":
+            toc_end = i
+            break
+            
+    if toc_start is not None and toc_end is not None:
+        print(f"  Formatting Table of Contents between P{toc_start} and P{toc_end}...")
+        toc_paras = [doc.paragraphs[i] for i in range(toc_start + 1, toc_end)]
+        
+        items = [
+            ("main", "1.", "Project Overview"),
+            ("main", "2.", "System Architecture"),
+            ("main", "3.", "Modules Developed"),
+            ("sub", "3.1", "Frame Extraction"),
+            ("sub", "3.2", "Landmark Detection"),
+            ("sub", "3.3", "Normalisation"),
+            ("sub", "3.4", "Motion Features"),
+            ("sub", "3.5", "Shape Features"),
+            ("sub", "3.6", "Optical Flow"),
+            ("sub", "3.7", "Quality Metrics"),
+            ("sub", "3.8", "Visualisation"),
+            ("main", "4.", "Pipeline Orchestrator"),
+            ("main", "5.", "Supporting Tools"),
+            ("main", "6.", "Google Drive Batch Pipeline"),
+            ("main", "7.", "Pipeline Validation Results"),
+            ("main", "8.", "Codebase Summary"),
+            ("main", "9.", "Technology Stack"),
+            ("main", "10.", "Key Design Decisions"),
+            ("main", "11.", "Multi-Speaker Vowel vs. Consonant Machine Learning Model"),
+            ("main", "12.", "Unseen Video Inference & Pipeline Integration"),
+            ("main", "13.", "System Limitations, Failure Modes & Environmental Sensitivity"),
+        ]
+        
+        for idx, (itype, num_str, title_str) in enumerate(items):
+            p = toc_paras[idx]
+            p.text = "" # Clear previous runs and properties
+            
+            if itype == "main":
+                p.paragraph_format.left_indent = Inches(0.35)
+                p.paragraph_format.first_line_indent = -Inches(0.35)
+                p.paragraph_format.tab_stops.add_tab_stop(Inches(0.35))
+                p.paragraph_format.space_before = Pt(3.5)
+                p.paragraph_format.space_after = Pt(1.5)
+                p.paragraph_format.line_spacing = 1.15
+                p.paragraph_format.keep_with_next = True
+                
+                r0 = p.add_run(f"{num_str}\t")
+                r0.font.name = "Calibri"
+                r0.font.size = Pt(10.5)
+                r0.font.bold = True
+                r0.font.color.rgb = BLUE_COLOR
+                
+                r1 = p.add_run(title_str)
+                r1.font.name = "Calibri"
+                r1.font.size = Pt(10.5)
+                r1.font.bold = False
+                r1.font.color.rgb = TEXT_COLOR
+            else:
+                p.paragraph_format.left_indent = Inches(0.65)
+                p.paragraph_format.first_line_indent = -Inches(0.30)
+                p.paragraph_format.tab_stops.add_tab_stop(Inches(0.65))
+                p.paragraph_format.space_before = Pt(1.5)
+                p.paragraph_format.space_after = Pt(1.5)
+                p.paragraph_format.line_spacing = 1.1
+                p.paragraph_format.keep_with_next = True
+                
+                r0 = p.add_run(f"{num_str}\t")
+                r0.font.name = "Calibri"
+                r0.font.size = Pt(9.5)
+                r0.font.bold = False
+                r0.font.color.rgb = SUB_COLOR
+                
+                r1 = p.add_run(title_str)
+                r1.font.name = "Calibri"
+                r1.font.size = Pt(9.5)
+                r1.font.bold = False
+                r1.font.color.rgb = SUB_COLOR
+                
+    # 3. Add clean page break after Table of Contents (before Section 1)
     for p in doc.paragraphs:
         if p.text.strip() == "1. Project Overview":
             p.paragraph_format.page_break_before = True
             break
             
-    # 3. Ensure keep_with_next on all headings
+    # 4. Ensure keep_with_next on all headings
     for p in doc.paragraphs:
         if p.style.name.startswith("Heading") or (p.text and p.text[:2] in ["1.", "2.", "3.", "4.", "5.", "6.", "7.", "8.", "9."] and len(p.text) < 70):
             p.paragraph_format.keep_with_next = True
             p.paragraph_format.space_before = Pt(10)
             p.paragraph_format.space_after = Pt(3)
             
-    # 4. Remove completely empty paragraphs (no text, no images, no page breaks)
+    # 5. Remove completely empty paragraphs (no text, no images, no page breaks)
     to_delete = []
     for idx, p in enumerate(doc.paragraphs):
         if idx < 18:
@@ -59,7 +148,7 @@ def polish_doc():
     for p in to_delete:
         p._element.getparent().remove(p._element)
         
-    # 5. Fix image sizing and keep_with_next on image paragraphs
+    # 6. Fix image sizing and keep_with_next on image paragraphs
     print("  Adjusting image sizes and setting keep_with_next on figures...")
     for p in doc.paragraphs:
         has_graphic = any('graphic' in r._r.xml for r in p.runs)
@@ -83,7 +172,7 @@ def polish_doc():
             s.width = int(new_w * 914400)
             s.height = int(new_h * 914400)
             
-    # 6. Set tblHeader on tables and ensure rows can split cleanly
+    # 7. Set tblHeader on tables and ensure rows can split cleanly
     print("  Updating table headers, row split properties, and cell margins...")
     for t in doc.tables:
         if len(t.rows) > 0:
@@ -106,14 +195,14 @@ def polish_doc():
                     cp.paragraph_format.space_after = Pt(2)
                     cp.paragraph_format.line_spacing = 1.05
 
-    # 7. Section 13 compact spacing to fit cleanly
+    # 8. Section 13 compact spacing to fit cleanly
     for p in doc.paragraphs:
         if "13." in p.text:
             p.paragraph_format.space_before = Pt(6)
             p.paragraph_format.space_after = Pt(2)
             p.paragraph_format.line_spacing = 1.1
 
-    # 8. Ending block: keep together
+    # 9. Ending block: keep together
     doc.paragraphs[-4].paragraph_format.space_before = Pt(6)
     doc.paragraphs[-4].paragraph_format.space_after = Pt(3)
     doc.paragraphs[-4].paragraph_format.keep_with_next = True
