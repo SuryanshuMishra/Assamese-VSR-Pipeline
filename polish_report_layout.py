@@ -65,14 +65,13 @@ def polish_doc():
             ("sub", "3.8", "Visualisation"),
             ("main", "4.", "Pipeline Orchestrator"),
             ("main", "5.", "Supporting Tools"),
-            ("main", "6.", "Google Drive Batch Pipeline"),
-            ("main", "7.", "Pipeline Validation Results"),
-            ("main", "8.", "Codebase Summary"),
-            ("main", "9.", "Technology Stack"),
-            ("main", "10.", "Key Design Decisions"),
-            ("main", "11.", "Multi-Speaker Vowel vs. Consonant Machine Learning Model"),
-            ("main", "12.", "Unseen Video Inference & Pipeline Integration"),
-            ("main", "13.", "System Limitations, Failure Modes & Environmental Sensitivity"),
+            ("main", "6.", "Pipeline Validation Results"),
+            ("main", "7.", "Codebase Summary"),
+            ("main", "8.", "Technology Stack"),
+            ("main", "9.", "Key Design Decisions"),
+            ("main", "10.", "Multi-Speaker Vowel vs. Consonant Machine Learning Model"),
+            ("main", "11.", "Unseen Video Inference & Pipeline Integration"),
+            ("main", "12.", "System Limitations, Failure Modes & Environmental Sensitivity"),
         ]
         
         for idx, (itype, num_str, title_str) in enumerate(items):
@@ -159,20 +158,22 @@ def polish_doc():
             p.paragraph_format.space_before = Pt(6)
             p.paragraph_format.space_after = Pt(2)
             
-    for s in doc.inline_shapes:
-        w_in = s.width / 914400.0
-        h_in = s.height / 914400.0
-        ar = w_in / h_in
-        if h_in > 2.7:
-            new_h = 2.6
-            new_w = new_h * ar
-            s.height = int(new_h * 914400)
-            s.width = int(new_w * 914400)
-        elif w_in > 5.5:
-            new_w = 5.4
-            new_h = new_w / ar
-            s.width = int(new_w * 914400)
-            s.height = int(new_h * 914400)
+    # Proportional sizes tuned for column width (~6.0 in wide, max height ~2.97 in)
+    new_sizes = [
+        (5.20, 2.97), # Fig 1 (ar=1.75)
+        (6.00, 1.42), # Fig 2 (ar=4.24)
+        (5.90, 2.11), # Fig 3 (ar=2.80)
+        (5.90, 1.97), # Fig 4 (ar=3.00)
+        (5.85, 2.51), # Fig 5 (ar=2.33)
+        (5.90, 2.36), # Fig 6 (ar=2.50)
+        (5.70, 2.85), # Fig 7 (ar=2.00)
+        (5.20, 2.97), # Fig 8 (ar=1.75)
+    ]
+    for i, (w_in, h_in) in enumerate(new_sizes):
+        if i < len(doc.inline_shapes):
+            s = doc.inline_shapes[i]
+            s.width = int(w_in * 914400)
+            s.height = int(h_in * 914400)
             
     # 7. Set tblHeader on tables and ensure rows can split cleanly
     print("  Updating table headers, row split properties, and cell margins...")
