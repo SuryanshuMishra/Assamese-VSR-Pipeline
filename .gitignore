@@ -20,6 +20,11 @@ shape_predictor_68_face_landmarks.dat*
 *.mov
 *.mkv
 *.zip
+Bhargav Bharadwaj Kataky/
+Chirag Dey/
+Ratnadeep Gautam/
+Suryanshu Mishra/
+~$*.docx
 cross_speaker_data/
 cross_speaker_features/
 cross_speaker_dataset.csv
